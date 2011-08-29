@@ -1,14 +1,18 @@
 <?php
 /*
 * Plugin Name: Latest Github Commits
-* Plugin URI: http://www.github.com/bivald/latest-github-commits
+* Plugin URI: https://github.com/bivald/wordpress-github-latest-commits
 * Description: Display your recent github commits
-* Version: 0.1
-* Author: Niklas Bivald
-* Author URI: http://www.bivald.com/
+* Version: 0.2
+* Author: Niklas Bivald, Jacob Lowe
+* Author URI: http://www.bivald.com/ http://www.redeyeoperations.com
 *
 * Inspired by ErisDS's Simple Widget Plugin (http://erisds.co.uk) 
 * and Curt Zieglers Custom Recent Posts (http://www.curtziegler.com/)
+*
+* History
+* 0.2 2011-08-29: Updated by Jacob Lowe, www.redeyeoperations.com
+* 0.1 2010-11-01: Original code can be found on https://github.com/bivald/wordpress-plugins-and-themes/blob/master/plugins/latest-github-commits.php
 */
 
 /*

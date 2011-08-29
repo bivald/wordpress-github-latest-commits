@@ -45,6 +45,9 @@ Consider it a beta.
 
 == Changelog ==
 
+= 0.2 =
+Patched by Jacob Lowe, redeyeoperations.com
+
 = 0.1 =
 
 Initial relase
