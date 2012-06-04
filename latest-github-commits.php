@@ -101,42 +101,50 @@ class Latest_Github_Commits extends WP_Widget {
 
     $success = true;
     $commits = array();
-    if (false === ($commits = get_transient('latest_github_commits_json')))
+    if (false === ($commits = get_transient('latest_github_commits_php')))
     {
-      if (true)
-      {
         // get the list of all repositories, or specific ones
+    	if ($instance["github_project_choice"] == "all")
+      {
         $repository_names = self::getUserRepositories($instance['github_user']);
+      }
+      else
+      {
+        $repository_names = explode(",", $instance["github_project"]);
+      }
 
-        if ($repository_names !== false)
-        {
-          // loop through all repositories and get the latest N ($max) commits
-          $commits = self::getLatestCommits($instance['github_user'], $instance["github_commit_users"], $repository_names, $max);
-        }
-
-      } else {
-
+      if ($repository_names !== false)
+      {
+        // loop through all repositories and get the latest N ($max) commits
+        $commits = self::getLatestCommits($instance['github_user'], $instance["github_commit_users"], $repository_names, $max);
       }
 
       // Save a transient to the database
-      if (!self::$disableCache)
+      if (!self::$disableCache && $success)
       {
-      	set_transient('latest_github_commits_json', $commits, $cache_for * 60);
+      	set_transient('latest_github_commits_php', $commits, $cache_for * 60);
       }
     }
-
 
     $sidebar_posts = "";
     if ($success == true)
     {
       foreach ($commits as $commit)
       {
-//      	$project = $commit
+      	// only include the "by" text if there's more than one committer to be listed
+      	$by = "";
+      	if ($instance["github_commit_users"] == "all")
+      	{
+          $by = "by " . $commit['author']['name'];
+      	}
+
+      	$repo_url = preg_replace("/[^\/]*$/", "", $commit['url']);
+      	$repo_url = preg_replace("/commit\/$/", "", $repo_url);
+
         $sidebar_posts .= "<li>";
-        $sidebar_posts .= "<a href=\"http://www.github.com/{$commit['url']}\">";
-        $sidebar_posts .= "<span>" . date('Y-m-d H:i',strtotime($commit['committed_date'])) . " by " . $commit['author']['name'] . "</span><br/>";
-        $sidebar_posts .= $commit['message'];
-        $sidebar_posts .= "</a>";
+        $sidebar_posts .= "<a href=\"$repo_url\" class=\"latest-github-commits-repository-name\">{$commit["repo_name"]}</a> &#8212 ";
+        $sidebar_posts .= "<span>" . date($instance["date_format"], $commit['committed_date']) . $by . "</span><br/>";
+        $sidebar_posts .= "<a href=\"http://www.github.com{$commit['url']}\" class=\"latest-github-commits-commit-link\">{$commit['message']}</a>";
         $sidebar_posts .= "</li>";
       }
     }
@@ -235,21 +243,42 @@ class Latest_Github_Commits extends WP_Widget {
       curl_close($ch);
 
       $repo_commits = json_decode($data, true);
-      $all_commits = array_merge($repo_commits["commits"], $all_commits);
+
+      $repo_commits["repo_name"] = $repo_name;
+      $all_commits[] = $repo_commits;
     }
 
-    // now sort them by date and return $max results
+    // now sort them by date and return the $max most recent commit details
     $sorted_commits = array();
-    foreach ($all_commits as $commit_info)
+    foreach ($all_commits as $curr_group)
     {
-      // [more efficient way to do this?]
-      $committed_unixtime = strtotime($commit_info["committed_date"]);
+    	$repository_name = $curr_group["repo_name"];
+      $commits         = $curr_group["commits"];
 
-      if ($commit_source == "only_user" && ($commit_info["author"]["login"] != $username)) {
+      if (!is_array($commits))
         continue;
-      }
 
-      $sorted_commits[$committed_unixtime] = $commit_info;
+      foreach ($commits as $commit_info)
+      {
+      	// urgh!! date is in the following format: 2012-05-05T12:23:15-07:00....
+        list($date, $time) = explode("T", $commit_info["committed_date"]);
+        list($year, $month, $day) = explode("_", $date);
+        list($hours, $mins, $secs_and_offset) = explode(":", $time);
+        $secs = substr($secs_and_offset, 0, 2);
+        $offset = (int) substr($secs_and_offset, 2);
+        $offset_secs = 60 * 60 * $offset;
+
+	      $committed_unixtime = strtotime($commit_info["committed_date"]) + $offset_secs;
+	      $commit_info["committed_date"] = $committed_unixtime;
+
+	      if ($commit_source == "only_user" && ($commit_info["author"]["login"] != $username))
+	      {
+	        continue;
+	      }
+
+	      $commit_info["repo_name"] = $repository_name;
+	      $sorted_commits[$committed_unixtime] = $commit_info;
+      }
     }
 
     ksort($sorted_commits, SORT_NUMERIC);
@@ -269,6 +298,7 @@ class Latest_Github_Commits extends WP_Widget {
     $instance['github_project'] = strip_tags($new_instance['github_project']);
     $instance['github_project_choice'] = strip_tags($new_instance['github_project_choice']);
     $instance['github_commit_users'] = strip_tags($new_instance['github_commit_users']);
+    $instance['date_format'] = strip_tags($new_instance['date_format']);
 
     if (is_numeric($new_instance['max']))
     {
@@ -281,7 +311,7 @@ class Latest_Github_Commits extends WP_Widget {
     }
 
     // Remove our saved cache (in case we changed cache/max values for example)
-    delete_transient('latest_github_commits_json');
+    delete_transient('latest_github_commits_php');
 
     return $instance;
   }
@@ -296,30 +326,31 @@ class Latest_Github_Commits extends WP_Widget {
       'Github Project'        => __('Github Project', 'github_project'),
       'github_commit_users'   => "only_user",
       'github_project_choice' => "all",
-      'max'                   => 5
+      'max'                   => 5,
+      'date_format'           => 'M jS, g:i A'
     );
 
     $instance = wp_parse_args( (array) $instance, $defaults ); ?>
 
     <p>
-      <label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title:', 'hybrid'); ?></label>
-      <input id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $instance['title']; ?>" style="width:95%;" />
+      <label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:', 'hybrid'); ?></label>
+      <input id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" value="<?php echo $instance['title']; ?>" style="width:95%;" />
     </p>
 
     <p>
-      <label for="<?php echo $this->get_field_id( 'github_user' ); ?>"><?php _e('Github User:', 'hybrid'); ?></label>
-      <input id="<?php echo $this->get_field_id( 'github_user' ); ?>" name="<?php echo $this->get_field_name( 'github_user' ); ?>"
+      <label for="<?php echo $this->get_field_id('github_user'); ?>"><?php _e('Github User:', 'hybrid'); ?></label>
+      <input id="<?php echo $this->get_field_id('github_user'); ?>" name="<?php echo $this->get_field_name('github_user'); ?>"
         value="<?php echo $instance['github_user']; ?>" style="width:95%;" />
     </p>
 
     <p>
-    <label for="<?php echo $this->get_field_id( 'github_project' ); ?>"><?php _e('Github Project(s):', 'hybrid'); ?></label>
+    <label for="<?php echo $this->get_field_id('github_project'); ?>"><?php _e('Github Project(s):', 'hybrid'); ?></label>
     <select name="<?php echo $this->get_field_name('github_project_choice'); ?>" style="width: 95%" class="widget-latest-github-commits-project-choice">
 	    <option value="all" <?php if ($instance['github_project_choice'] == "all") echo "selected"; ?>><?php _e('All projects', 'hybrid'); ?></option>
 		  <option value="specific" <?php if ($instance['github_project_choice'] == "specific") echo "selected"; ?>><?php _e('Specific projects:', 'hybrid'); ?></option>
 		</select>
 		<span class="widget-latest-github-commits-project-choice-specific" <?php if ($instance['github_project_choice'] == "all") echo "style=\"display: none\""; ?>>
-      <input id="<?php echo $this->get_field_id( 'github_project' ); ?>" name="<?php echo $this->get_field_name( 'github_project' ); ?>"
+      <input id="<?php echo $this->get_field_id('github_project'); ?>" name="<?php echo $this->get_field_name('github_project'); ?>"
         value="<?php echo $instance['github_project']; ?>" style="width:95%;" />
         (comma-delimited)
     </span>
@@ -341,6 +372,12 @@ class Latest_Github_Commits extends WP_Widget {
     <p>
       <label for="<?php echo $this->get_field_id( 'cache' ); ?>"><?php _e('Cache For X minutes:', 'hybrid'); ?></label>
       <input id="<?php echo $this->get_field_id( 'cache' ); ?>" name="<?php echo $this->get_field_name( 'cache' ); ?>" value="<?php echo $instance['cache']; ?>" style="width:30px" />
+    </p>
+
+    <p>
+      <label for="<?php echo $this->get_field_id( 'date_format' ); ?>"><?php _e('Date format:', 'hybrid'); ?></label>
+      <input id="<?php echo $this->get_field_id( 'date_format' ); ?>" name="<?php echo $this->get_field_name( 'date_format' ); ?>" value="<?php echo $instance['date_format']; ?>" style="width:100px" /><br />
+      &#8212; see <a href="http://php.net/manual/en/function.date.php" target="_blank">PHP date()</a>
     </p>
 
   <?php
