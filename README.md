@@ -1,12 +1,11 @@
 #Github-Latest-Commits
 
+Author: bivald - http://www.bivald.com/wordpress/
 
 Contributors: bivald, benkeen
-Donate link: http://www.bivald.com/wordpress/
-Tags: github, latest, commits
-Requires at least: 3.0.1
-Tested on: 3.3.2
-Stable tag: trunk
+
+Tested on Wordpress 3.3.2
+
 
 ## Description
 
