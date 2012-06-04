@@ -142,7 +142,7 @@ class Latest_Github_Commits extends WP_Widget {
       	$repo_url = preg_replace("/commit\/$/", "", $repo_url);
 
         $sidebar_posts .= "<li>";
-        $sidebar_posts .= "<a href=\"$repo_url\" class=\"latest-github-commits-repository-name\">{$commit["repo_name"]}</a> &#8212 ";
+        $sidebar_posts .= "<a href=\"http://www.github.com$repo_url\" class=\"latest-github-commits-repository-name\">{$commit["repo_name"]}</a> &#8212 ";
         $sidebar_posts .= "<span>" . date($instance["date_format"], $commit['committed_date']) . $by . "</span><br/>";
         $sidebar_posts .= "<a href=\"http://www.github.com{$commit['url']}\" class=\"latest-github-commits-commit-link\">{$commit['message']}</a>";
         $sidebar_posts .= "</li>";
