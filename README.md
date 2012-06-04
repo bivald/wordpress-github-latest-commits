@@ -2,13 +2,11 @@
 
 Author: bivald - http://www.bivald.com/wordpress/
 
-Contributors: bivald, benkeen
+Contributors: benkeen
 
 Tested on Wordpress 3.3.2
 
-
 ## Description
-
 Latest Github Commits is a simple WordPress widget to fetch your latest commits from Github via their API. It allows you to choose to specify one or more repositories and whether or not the commits listed are purely your own - or anyone on your repos.
 
 You need to configure:
@@ -28,24 +26,22 @@ Optional configurations:
 1. Add the plugin to your sidebar as a widget
 
 ## FAQ
-How does it cache the results?
-
+_How does it cache the results?_
 It uses Wordpress transient storage to cache the results.
 
-= Is it stable? =
+_Is it stable?_
 Hard to say. This latest version is based an a much older version. I (Ben Keen) am sing on an upcoming site (June 2012) so if it isn't, I'll be updating it soon.
 
 ## Changelog
 
-= 0.3 =
+_0.3_
 Updated by Ben Keen, @vancouverben to provide a little more functionality: date formatting; option to pull from multiple repositories or all repos; option to only display commits by yourself, or all committers to your repo.
 
-= 0.2 =
+_0.2_
 Patched by Jacob Lowe, redeyeoperations.com
 
-= 0.1 =
+_0.1_
 Initial relase
-
 
 Ben Keen
 [@vancouverben](https://twitter.com/#!/vancouverben)
