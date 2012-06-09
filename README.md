@@ -2,7 +2,7 @@
 
 Author: bivald - http://www.bivald.com/wordpress/
 
-Contributors: [benkeen](@https://github.com/benkeen)
+Contributors: [benkeen](https://github.com/benkeen)
 
 Tested on Wordpress 3.3.2
 
@@ -16,8 +16,8 @@ You need to configure:
 Optional configurations:
 * Widget title
 * Max commits to list
-* How long to cache the results
-* The date formatting option
+* How long to cache the results (defaults to 30 mins)
+* Date formatting
 * Whether or not the commits to be displayed are only your own, or anyone contributing to your projects
 
 ## Installation
@@ -32,7 +32,7 @@ Optional configurations:
 ## Changelog
 
 _0.3_
-Updated by [Ben Keen](@https://github.com/benkeen) to provide a little more functionality: date formatting; option to pull from multiple repositories or all repos; option to only display commits by yourself, or all committers to your repo.
+Updated by [Ben Keen](https://github.com/benkeen) to provide a little more functionality: date formatting; option to pull from multiple repositories or all repos; option to only display commits by yourself, or all committers to your repo.
 
 _0.2_
 Patched by Jacob Lowe, [redeyeoperations.com](http://redeyeoperations.com)
