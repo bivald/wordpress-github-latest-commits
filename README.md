@@ -2,16 +2,16 @@
 
 Author: bivald - http://www.bivald.com/wordpress/
 
-Contributors: benkeen
+Contributors: [benkeen](@https://github.com/benkeen)
 
 Tested on Wordpress 3.3.2
 
 ## Description
-Latest Github Commits is a simple WordPress widget to fetch your latest commits from Github via their API. It allows you to choose to specify one or more repositories and whether or not the commits listed are purely your own - or anyone on your repos.
+Latest Github Commits is a simple WordPress widget to fetch your latest commits from Github. It allows you to choose to specify one or more of your repositories and whether or not the commits listed are purely your own - or anyone else's contributions. To prevent long page loads, results are cached in Wordpress transient storage for a period of your choosing.
 
 You need to configure:
 * Github owner of the project (i.e bivald in the author's case)
-* Github repo name(s), or allow it to pull commit data from all your repos (not a good idea if you have a lot! It will run slow!)
+* Github repo name(s), or allow it to pull commit data from all your repos
 
 Optional configurations:
 * Widget title
@@ -23,22 +23,19 @@ Optional configurations:
 ## Installation
 1. Upload `latest-github-commits.php` to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Add the plugin to your sidebar as a widget
+1. Add the plugin to somewhere on your site (sidebar, footer etc) as a widget
 
-## FAQ
-_How does it cache the results?_
-It uses Wordpress transient storage to cache the results.
-
-_Is it stable?_
-Hard to say. This latest version is based an a much older version. I (Ben Keen) am sing on an upcoming site (June 2012) so if it isn't, I'll be updating it soon.
+## Notes
+* The option to let you pull from all your repositories is convenient, but can be very slow when the data is first polled if you have a large number of repos. So generally, you'll want to specify which of the repositories you're interested in.
+* Right now, the format of the outputted commit data is pretty basic. I hope to finer controls at a later date.
 
 ## Changelog
 
 _0.3_
-Updated by Ben Keen, @vancouverben to provide a little more functionality: date formatting; option to pull from multiple repositories or all repos; option to only display commits by yourself, or all committers to your repo.
+Updated by [Ben Keen](@https://github.com/benkeen) to provide a little more functionality: date formatting; option to pull from multiple repositories or all repos; option to only display commits by yourself, or all committers to your repo.
 
 _0.2_
-Patched by Jacob Lowe, redeyeoperations.com
+Patched by Jacob Lowe, [redeyeoperations.com](http://redeyeoperations.com)
 
 _0.1_
 Initial relase
